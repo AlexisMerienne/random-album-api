@@ -3,6 +3,8 @@ import random
 import requests
 from flask import Flask, jsonify
 
+from decouple import config
+
 from spotipy.oauth2 import SpotifyClientCredentials
 from spotipy import Spotify
 
@@ -12,9 +14,11 @@ DEEZER_SEARCH_API = "https://api.deezer.com/search"
 DEEZER_ALBUM_URI = "https://www.deezer.com/album/"
 SPOTIFY_SEARCH_API = "https://api.spotify.com/v1/search"
 
-SPOTIFY_CLIENT_ID = "05f650042c7a43e2b5a450923f97ab27"
-SPOTIFY_CLIENT_SECRET = "98786edd46b04055b356fdb3c04ef32d"
-SPOTIFY_REDIRECT_URI = "https://myapp.fr"
+
+SPOTIFY_CLIENT_ID = config("SPOTIFY_CLIENT_ID")
+SPOTIFY_CLIENT_SECRET = config("SPOTIFY_CLIENT_SECRET")
+SPOTIFY_REDIRECT_URI = config("SPOTIFY_REDIRECT_URI")
+
 
 # Spotify client credentials manager
 spotify_client_credentials_manager = SpotifyClientCredentials(
@@ -67,4 +71,4 @@ def random_album():
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
-    app.run(debug=True, port=port)
+    app.run(debug=True, host="0.0.0.0", port=port)

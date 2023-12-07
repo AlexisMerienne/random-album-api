@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pyz
+*.pyw
+*.pyc
+
+# Virtual Environment
+venv/
+env/
+
+# IDE (e.g., PyCharm)
+.idea/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Logs and databases
+*.log
+*.sqlite
+*.db
+
+# Editor-specific files
+.vscode/
+*.sublime-workspace
+*.sublime-project
+*.komodoproject
+.komodotools/
+
+# Environment variables
+.env
