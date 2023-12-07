@@ -1,7 +1,9 @@
 import os
 import random
 import requests
+
 from flask import Flask, jsonify
+from flask_cors import CORS
 
 from decouple import config
 
@@ -9,6 +11,7 @@ from spotipy.oauth2 import SpotifyClientCredentials
 from spotipy import Spotify
 
 app = Flask(__name__)
+CORS(app)
 
 DEEZER_SEARCH_API = "https://api.deezer.com/search"
 DEEZER_ALBUM_URI = "https://www.deezer.com/album/"
