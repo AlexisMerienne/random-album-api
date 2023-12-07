@@ -1,6 +1,7 @@
-from flask import Flask, jsonify
-import requests
+import os
 import random
+import requests
+from flask import Flask, jsonify
 
 from spotipy.oauth2 import SpotifyClientCredentials
 from spotipy import Spotify
@@ -65,4 +66,5 @@ def random_album():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(debug=True, port=port)
