@@ -5,4 +5,3 @@ Werkzeug==2.2.2
 python-decouple==3.4
 flask_cors==3.0.10
 nltk==3.8.1
-logging==0.4.9.6
