@@ -1,5 +1,6 @@
 import os
 import random
+import string
 import requests
 
 from flask import Flask, jsonify
@@ -30,13 +31,16 @@ spotify_client_credentials_manager = SpotifyClientCredentials(
 spotify = Spotify(client_credentials_manager=spotify_client_credentials_manager)
 
 
-
-def get_random_number():
-    return random.randint(1, 9999)
-
+def get_random_sequence():
+    seq_size = random.choice([3, 4])
+    
+    if random.choice([True, False]):  # Randomly choose between numbers or characters
+        return str(random.randint(1, 10**seq_size - 1)).zfill(seq_size)
+    else:
+        return ''.join(random.choice(string.ascii_letters) for _ in range(seq_size))
 
 def get_random_album():
-    random_number = get_random_number()
+    random_number = get_random_sequence()
     api_url = f"{DEEZER_SEARCH_API}?q={random_number}&type=album"
 
     response = requests.get(api_url)
