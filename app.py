@@ -2,6 +2,7 @@ import os
 import random
 import string
 import requests
+import logging
 
 from flask import Flask, jsonify
 from flask_cors import CORS
@@ -10,6 +11,11 @@ from decouple import config
 
 from spotipy.oauth2 import SpotifyClientCredentials
 from spotipy import Spotify
+
+import nltk
+from nltk.corpus import words
+from nltk import FreqDist
+
 
 app = Flask(__name__)
 CORS(app)
@@ -23,6 +29,13 @@ SPOTIFY_CLIENT_ID = config("SPOTIFY_CLIENT_ID")
 SPOTIFY_CLIENT_SECRET = config("SPOTIFY_CLIENT_SECRET")
 SPOTIFY_REDIRECT_URI = config("SPOTIFY_REDIRECT_URI")
 
+logging.basicConfig(level=logging.DEBUG)
+logging.getLogger().setLevel(logging.INFO)
+
+# Set the log level for Flask to DEBUG
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.DEBUG)
+
 
 # Spotify client credentials manager
 spotify_client_credentials_manager = SpotifyClientCredentials(
@@ -30,18 +43,34 @@ spotify_client_credentials_manager = SpotifyClientCredentials(
 )
 spotify = Spotify(client_credentials_manager=spotify_client_credentials_manager)
 
+nltk.download('words')
+nltk.download('lexique')
+
+# Get a list of English words
+english_words = words.words()
+
+
 
 def get_random_sequence():
+    engliqh_freq_dist = FreqDist(english_words)
+    common_words = engliqh_freq_dist.most_common(844)
+    common_word_list = [word[0] for word in common_words]
+
     seq_size = random.choice([3, 4])
-    
-    if random.choice([True, False]):  # Randomly choose between numbers or characters
-        return str(random.randint(1, 10**seq_size - 1)).zfill(seq_size)
-    else:
-        return ''.join(random.choice(string.ascii_letters) for _ in range(seq_size))
+
+    # Adjust the probabilities for getting a number, string, or word
+    choice_weights = [1, 1, 8]
+    choices = [str(random.randint(1, 10**seq_size - 1)).zfill(seq_size),
+               ''.join(random.choice(string.ascii_letters) for _ in range(seq_size)),
+               random.choice(common_word_list)]
+
+    return random.choices(choices, weights=choice_weights)[0]
+
 
 def get_random_album():
-    random_number = get_random_sequence()
-    api_url = f"{DEEZER_SEARCH_API}?q={random_number}&type=album"
+    random_sequence = get_random_sequence()
+    logging.info(f"Random number: {random_sequence}")
+    api_url = f"{DEEZER_SEARCH_API}?q={random_sequence}&type=album"
 
     response = requests.get(api_url)
 
