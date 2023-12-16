@@ -16,6 +16,8 @@ import nltk
 from nltk.corpus import words
 from nltk import FreqDist
 
+from services import albumInfoSerivce
+
 
 app = Flask(__name__)
 CORS(app)
@@ -77,12 +79,14 @@ def get_random_album():
     if response.status_code == 200:
         data = response.json().get("data", [])
         if data:
-            random_track = random.choice(data)
+            random_object = data[0]
+            album_data = albumInfoSerivce.get_album_info(random_object["album"]["id"])
             album_info = {
-                "deezer_uri": DEEZER_ALBUM_URI+str(random_track["album"]["id"]),
-                "cover_medium": random_track["album"]["cover_medium"],
-                "title": random_track["album"]["title"],
-                "artist_name": random_track["artist"]["name"],
+                "deezer_uri": DEEZER_ALBUM_URI+str(random_object["album"]["id"]),
+                "albumInfos" : album_data,
+                "cover_medium": random_object["album"]["cover_medium"],
+                "title": random_object["album"]["title"],
+                "artist_name": random_object["artist"]["name"],
             }
             # Search for the same album on Spotify
             spotify_query = f"{album_info['artist_name']} {album_info['title']}"
