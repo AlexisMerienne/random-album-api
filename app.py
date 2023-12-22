@@ -4,7 +4,7 @@ import string
 import requests
 import logging
 
-from flask import Flask, jsonify
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 
 from decouple import config
@@ -23,6 +23,7 @@ app = Flask(__name__)
 CORS(app)
 
 DEEZER_SEARCH_API = "https://api.deezer.com/search"
+DEEZER_ALBUM_API = "https://api.deezer.com/album"
 DEEZER_ALBUM_URI = "https://www.deezer.com/album/"
 SPOTIFY_SEARCH_API = "https://api.spotify.com/v1/search"
 
@@ -98,10 +99,41 @@ def get_random_album():
             return album_info
     return None
 
+def get_album_from_id(id):
+    api_url = f"{DEEZER_ALBUM_API}/{id}"
+    response = requests.get(api_url)
+    if response.status_code == 200:
+        data = response.json()
+        if data:
+            album_data = albumInfoSerivce.get_album_info(data["id"])
+            album_info = {
+                "deezer_uri": DEEZER_ALBUM_URI+str(data["id"]),
+                "albumInfos" : album_data,
+                "cover_medium": data["cover_medium"],
+                "title": data["title"],
+                "artist_name": data["name"],
+            }
+            # Search for the same album on Spotify
+            spotify_query = f"{album_info['artist_name']} {album_info['title']}"
+            spotify_result = spotify.search(q=spotify_query, type='album', limit=1)
+            if 'albums' in spotify_result and 'items' in spotify_result['albums']:
+                spotify_album = spotify_result['albums']['items'][0]
+                album_info["spotify_uri"] = spotify_album["external_urls"]["spotify"]
+
+            return album_info
+    return None
+
+
 
 @app.route("/album", methods=["GET"])
-def random_album():
-    album_info = get_random_album()
+def album():
+
+    id = request.args.get("id")
+    album_info = None
+    if id :
+        album_info = get_album_from_id(id)
+    else :
+        album_info = get_random_album()
 
     if album_info:
         return jsonify(album_info), 200
