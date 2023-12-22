@@ -111,7 +111,7 @@ def get_album_from_id(id):
                 "albumInfos" : album_data,
                 "cover_medium": data["cover_medium"],
                 "title": data["title"],
-                "artist_name": data["name"],
+                "artist_name": data["artist"]["name"],
             }
             # Search for the same album on Spotify
             spotify_query = f"{album_info['artist_name']} {album_info['title']}"
@@ -127,7 +127,6 @@ def get_album_from_id(id):
 
 @app.route("/album", methods=["GET"])
 def album():
-
     id = request.args.get("id")
     album_info = None
     if id :
