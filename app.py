@@ -99,6 +99,33 @@ def get_random_album():
             return album_info
     return None
 
+def get_album_from_name(name):
+    api_url = f"{DEEZER_SEARCH_API}?q={name}&type=album"
+
+    response = requests.get(api_url)
+
+    if response.status_code == 200:
+        data = response.json().get("data", [])
+        if data:
+            random_object = data[0]
+            album_data = albumInfoSerivce.get_album_info(random_object["album"]["id"])
+            album_info = {
+                "deezer_uri": DEEZER_ALBUM_URI+str(random_object["album"]["id"]),
+                "albumInfos" : album_data,
+                "cover_medium": random_object["album"]["cover_medium"],
+                "title": random_object["album"]["title"],
+                "artist_name": random_object["artist"]["name"],
+            }
+            # Search for the same album on Spotify
+            spotify_query = f"{album_info['artist_name']} {album_info['title']}"
+            spotify_result = spotify.search(q=spotify_query, type='album', limit=1)
+            if 'albums' in spotify_result and 'items' in spotify_result['albums']:
+                spotify_album = spotify_result['albums']['items'][0]
+                album_info["spotify_uri"] = spotify_album["external_urls"]["spotify"]
+
+            return album_info
+    return None
+
 def get_album_from_id(id):
     api_url = f"{DEEZER_ALBUM_API}/{id}"
     response = requests.get(api_url)
@@ -128,9 +155,12 @@ def get_album_from_id(id):
 @app.route("/album", methods=["GET"])
 def album():
     id = request.args.get("id")
+    name = request.args.get("name")
     album_info = None
     if id :
         album_info = get_album_from_id(id)
+    elif name :
+        album_info = get_album_from_name(name)
     else :
         album_info = get_random_album()
 
